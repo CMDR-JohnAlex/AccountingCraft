@@ -1,0 +1,5 @@
+Graphical program that can store items/ores from minecraft
+
+What I need:
+- ImGui (for the gui stuff)
+- Yaml-cpp (for saving the data)
