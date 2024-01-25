@@ -1,0 +1,9 @@
+[submodule "AccountingCraft/vendor/ImGui"]
+	path = AccountingCraft/vendor/ImGui
+	url = https://github.com/ocornut/imgui.git
+[submodule "AccountingCraft/vendor/yaml-cpp"]
+	path = AccountingCraft/vendor/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "AccountingCraft/vendor/glfw"]
+	path = AccountingCraft/vendor/glfw
+	url = https://github.com/glfw/glfw.git
