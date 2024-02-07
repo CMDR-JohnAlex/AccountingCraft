@@ -2,6 +2,7 @@ project "AccountingCraft"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++20"
+	staticruntime "Off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -17,11 +18,22 @@ project "AccountingCraft"
 	includedirs
 	{
 		"src",
-		"vendor"
+		"vendor",
+		"vendor/glfw/include",
+		"vendor/glad/include",
+		"vendor/ImGui",
+		"vendor/ImGui/include",
+		"vendor/ImGui/backends",
+		"vendor/yaml-cpp/include",
+		"vendor/stbi"
 	}
 
 	links
 	{
+		"glad",
+		"glfw",
+		"ImGui",
+		"yaml-cpp"
 	}
 
 	filter "configurations:Debug"
