@@ -1,5 +1,5 @@
-project "AccountingCraft"
-	kind "ConsoleApp"
+project "ApplicationFramework"
+	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
 	staticruntime "Off"
@@ -19,20 +19,21 @@ project "AccountingCraft"
 	{
 		"src",
 		"vendor",
-		"../ApplicationFramework/src",
-		"../ApplicationFramework/vendor",
-		"../ApplicationFramework/vendor/glfw/include",
-		"../ApplicationFramework/vendor/glad/include",
-		"../ApplicationFramework/vendor/ImGui",
-		"../ApplicationFramework/vendor/ImGui/include",
-		"../ApplicationFramework/vendor/ImGui/backends",
-		"../ApplicationFramework/vendor/yaml-cpp/include",
-		"../ApplicationFramework/vendor/stbi"
+		"vendor/glfw/include",
+		"vendor/glad/include",
+		"vendor/ImGui",
+		"vendor/ImGui/include",
+		"vendor/ImGui/backends",
+		"vendor/yaml-cpp/include",
+		"vendor/stbi"
 	}
 
 	links
 	{
-		"ApplicationFramework"
+		"glad",
+		"glfw",
+		"ImGui",
+		"yaml-cpp"
 	}
 
 	filter "configurations:Debug"
