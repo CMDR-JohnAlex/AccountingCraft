@@ -78,5 +78,5 @@ namespace ApplicationFramework
 		static Application* s_Instance;
 	};
 
-	Application* CreateApplication();
+	Application* CreateApplication(int argc, char** argv);
 }

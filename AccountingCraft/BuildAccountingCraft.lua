@@ -36,15 +36,67 @@ project "AccountingCraft"
 	}
 
 	filter "configurations:Debug"
+		defines { "APPLICATION_FRAMEWORK_BUILD_DEBUG", "ACCOUNTING_CRAFT_BUILD_DEBUG" }
 		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
+		defines { "APPLICATION_FRAMEWORK_BUILD_RELEASE", "ACCOUNTING_CRAFT_BUILD_RELEASE" }
 		runtime "Release"
 		optimize "On"
 		symbols "On"
 
 	filter "configurations:Dist"
+		kind "WindowedApp"
+		defines { "APPLICATION_FRAMEWORK_BUILD_DIST", "ACCOUNTING_CRAFT_BUILD_DIST" }
 		runtime "Release"
 		optimize "On"
 		symbols "Off"
+
+	filter "system:windows"
+		systemversion "latest"
+
+		links
+		{
+		}
+
+		defines
+		{
+			"APPLICATION_FRAMEWORK_PLATFORM_WINDOWS",
+			"ACCOUNTING_CRAFT_PLATFORM_WINDOWS"
+		}
+
+		postbuildcommands
+		{
+		}
+
+	filter "system:linux"
+
+		links
+		{
+			"glad",
+			"glfw",
+			"ImGui",
+			"imgui",
+			"yaml-cpp",
+			"GL",
+			"X11",
+			"Xi",
+			"Xrandr",
+			"Xxf86vm",
+			"Xinerama",
+			"Xcursor",
+			"rt",
+			"m",
+			"pthread"
+		}
+
+		defines
+		{
+			"APPLICATION_FRAMEWORK_PLATFORM_LINUX",
+			"ACCOUNTING_CRAFT_PLATFORM_LINUX"
+		}
+
+		postbuildcommands
+		{
+		}

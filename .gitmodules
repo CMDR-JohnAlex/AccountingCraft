@@ -1,13 +1,3 @@
-[submodule "AccountingCraft/vendor/ImGui"]
-	path = ApplicationFramework/vendor/ImGui
-	url = https://github.com/ocornut/imgui.git
-	branch = docking
-[submodule "AccountingCraft/vendor/yaml-cpp"]
-	path = ApplicationFramework/vendor/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "AccountingCraft/vendor/glfw"]
-	path = ApplicationFramework/vendor/glfw
-	url = https://github.com/glfw/glfw.git
 [submodule "ApplicationFramework/vendor/glfw"]
 	path = ApplicationFramework/vendor/glfw
 	url = https://github.com/glfw/glfw.git

@@ -22,7 +22,7 @@ public:
 	}
 };
 
-ApplicationFramework::Application* ApplicationFramework::CreateApplication()
+ApplicationFramework::Application* ApplicationFramework::CreateApplication(int argc, char** argv)
 {
 	ApplicationProperties properties = { "Accounting Craft", "", 1280, 720, WindowModes::Windowed, true, true };
 
