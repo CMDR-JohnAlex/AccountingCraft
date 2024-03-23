@@ -163,7 +163,7 @@ namespace ApplicationFramework
 			ImGui::NewFrame();
 
 			{
-				static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+				static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_AutoHideTabBar; // Note: Is AutoHideTabBar what we want?
 
 				// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 				// because it would be confusing to have two docking targets within each others.
@@ -272,6 +272,21 @@ namespace ApplicationFramework
 	float Application::GetTime()
 	{
 		return (float)glfwGetTime();
+	}
+
+	float Application::GetTimeStep()
+	{
+		return m_TimeStep;
+	}
+
+	float Application::GetFrameTime()
+	{
+		return m_FrameTime;
+	}
+
+	float Application::GetLastFrameTime()
+	{
+		return m_LastFrameTime;
 	}
 
 	void Application::LoadIcon(const std::string& iconPath)

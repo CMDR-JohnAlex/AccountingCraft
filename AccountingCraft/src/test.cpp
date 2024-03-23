@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-class ExampleLayer : public ApplicationFramework::Layer
+class ListWindow : public ApplicationFramework::Layer
 {
 public:
 	unsigned int texture;
@@ -36,9 +36,14 @@ public:
 		stbi_image_free(data);
 	}
 
+	virtual void OnDetach() override
+	{
+		glDeleteTextures(1, &texture);
+	}
+
 	virtual void OnUIRender() override
 	{
-		ImGui::Begin("1");
+		ImGui::Begin("ListWindow", (bool*)0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar); // Note: These flags are not working?
 
 		/*
 			Useful Note: We are calculating the width of the ImGui window, so we
@@ -108,34 +113,100 @@ public:
 				for (int column = 0; column < 5; column++)
 				{
 					ImGui::TableSetColumnIndex(column);
-					ImGui::Text("Row %d Column %d", row, column);
+					if (column == 0)
+					{
+						ImVec2 size = ImVec2(32.0f, 8.0f);                         // Size of the image we want to make visible
+						ImVec2 uv0 = ImVec2(0.0f, 0.0f);                            // UV coordinates for lower-left
+						ImVec2 uv1 = ImVec2(1, 1);    // UV coordinates for (1,1) in our texture
+						ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);             // Black background
+						ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);           // No tint
+						if (ImGui::ImageButton("##Button1", (ImTextureID)((unsigned long)texture), size, uv0, uv1, bg_col, tint_col))
+							;
+						if (ImGui::ImageButton("##Button2", (ImTextureID)((unsigned long)texture), size, uv0, uv1, bg_col, tint_col))
+							;
+					}
+					else if (column == 1)
+					{
+						ImGui::Image(
+							(ImTextureID)((unsigned long)texture),
+							size);
+					}
+					else if (column == 4)
+					{
+						ImVec2 size = ImVec2(32.0f, 32.0f);                         // Size of the image we want to make visible
+						ImVec2 uv0 = ImVec2(0.0f, 0.0f);                            // UV coordinates for lower-left
+						ImVec2 uv1 = ImVec2(1, 1);    // UV coordinates for (1,1) in our texture
+						ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);             // Black background
+						ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);           // No tint
+						if (ImGui::ImageButton("##Button1", (ImTextureID)((unsigned long)texture), size, uv0, uv1, bg_col, tint_col))
+							;
+					}
+					else
+						ImGui::Text("Row %d Column %d", row, column);
 				}
 			}
 			ImGui::EndTable();
 		}
 
 		ImGui::End();
-
-		ImGui::Begin("2");
-		ImGui::End();
-
-		ImGui::ShowDemoWindow();
 	}
 };
 
-class ExampleLayer2 : public ApplicationFramework::Layer
+class DetailsWindow : public ApplicationFramework::Layer
 {
 public:
 	virtual void OnAttach() override
 	{
 	}
 
+	virtual void OnDetach() override
+	{
+	}
+
 	virtual void OnUIRender() override
 	{
-		ImGui::Begin("3");
+		ImGui::Begin("DetailsWindow");
 		ImGui::End();
 	}
 };
+
+class ImGuiDemoWindow : public ApplicationFramework::Layer
+{
+public:
+	virtual void OnUIRender() override
+	{
+		ImGui::ShowDemoWindow();
+	}
+};
+
+class AboutWindow : public ApplicationFramework::Layer
+{
+public:
+	static bool ShowWindow;
+
+	virtual void OnAttach() override
+	{
+		ShowWindow = false;
+	}
+
+	virtual void OnDetach() override
+	{
+	}
+
+	virtual void OnUIRender() override
+	{
+		if (ShowWindow)
+		{
+			ImGui::Begin("AboutWindow", (bool*)true, ImGuiWindowFlags_AlwaysAutoResize /*| ImGuiWindowFlags_NoBackground*/ | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking /*| ImGuiWindowFlags_NoMove*/);
+			ImGui::Text("Version: %s", std::string("Current Version").c_str());
+			ApplicationFramework::Application::Get().GetTimeStep();
+			ImGui::Text("Frame Time: %.2fms\n", ApplicationFramework::Application::Get().GetFrameTime() * 1000.0f);
+			ImGui::Text("FPS: %.2f\n", 1000 / (ApplicationFramework::Application::Get().GetFrameTime() * 1000.0f));
+			ImGui::End();
+		}
+	}
+};
+bool AboutWindow::ShowWindow = false;
 
 ApplicationFramework::Application* ApplicationFramework::CreateApplication(int argc, char** argv)
 {
@@ -143,8 +214,14 @@ ApplicationFramework::Application* ApplicationFramework::CreateApplication(int a
 
 	Application* application = new Application(properties);
 
-	application->PushLayer<ExampleLayer>();
-	application->PushLayer<ExampleLayer2>();
+	application->PushLayer<ListWindow>();
+	application->PushLayer<DetailsWindow>();
+
+	application->PushLayer<AboutWindow>();
+
+#ifdef ACCOUNTING_CRAFT_BUILD_DEBUG
+	application->PushLayer<ImGuiDemoWindow>();
+#endif
 
 	application->SetMenubarCallback([application]()
 	{
@@ -170,9 +247,16 @@ ApplicationFramework::Application* ApplicationFramework::CreateApplication(int a
 			}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("About"))
+		if (ImGui::BeginMenu("Help/About"))
 		{
-			if (ImGui::MenuItem("Nothing"))
+			if (ImGui::MenuItem("Help"))
+			{
+			}
+			if (ImGui::MenuItem("About"))
+			{
+				AboutWindow::ShowWindow = !AboutWindow::ShowWindow;
+			}
+			if (ImGui::MenuItem("..."))
 			{
 			}
 			ImGui::EndMenu();

@@ -53,6 +53,10 @@ namespace ApplicationFramework
 		float GetTime();
 		inline GLFWwindow* GetWindowHandle() const { return m_WindowHandle; }
 
+		float GetTimeStep();
+		float GetFrameTime();
+		float GetLastFrameTime();
+
 		static inline Application& Get() { return *s_Instance; }
 
 	private:
