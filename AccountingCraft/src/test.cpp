@@ -6,6 +6,8 @@
 #include <stbi/stb_image.h>
 
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 class ListWindow : public ApplicationFramework::Layer
 {
@@ -131,6 +133,10 @@ public:
 							(ImTextureID)((unsigned long)texture),
 							size);
 					}
+					else if (column == 2 && row < IM_ARRAYSIZE(items))
+					{
+						ImGui::Text("%s", items[row]);
+					}
 					else if (column == 4)
 					{
 						ImVec2 size = ImVec2(32.0f, 32.0f);                         // Size of the image we want to make visible
@@ -208,6 +214,31 @@ public:
 };
 bool AboutWindow::ShowWindow = false;
 
+class TestWindow : public ApplicationFramework::Layer
+{
+	virtual void OnAttach() override
+	{
+		std::string path = "test/";
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+			std::cout << entry.path() << std::endl;
+
+		std::cout << std::endl;
+
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+			std::cout << entry.path().filename() << std::endl;
+
+		std::cout << std::endl;
+
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+			std::cout << entry.path().filename().string() << std::endl;
+
+		std::cout << std::endl;
+
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+			std::cout << entry.path().filename().string().substr(0, entry.path().filename().string().find_last_of('.')) << std::endl;
+	}
+};
+
 ApplicationFramework::Application* ApplicationFramework::CreateApplication(int argc, char** argv)
 {
 	ApplicationProperties properties = { "Accounting Craft", "", 1280, 720, WindowModes::Windowed, true, true };
@@ -223,10 +254,31 @@ ApplicationFramework::Application* ApplicationFramework::CreateApplication(int a
 	application->PushLayer<ImGuiDemoWindow>();
 #endif
 
-	application->SetMenubarCallback([application]()
+	application->PushLayer<TestWindow>();
+
+	std::vector<std::string> files;
+	for (const auto& entry : std::filesystem::directory_iterator("test/"))
+	{
+		files.push_back(entry.path().filename().string().substr(0, entry.path().filename().string().find_last_of('.')));
+	}
+
+	application->SetMenubarCallback([application, files]()
 	{
 		if (ImGui::BeginMenu("File"))
 		{
+			if (ImGui::BeginMenu("Data"))
+			{
+				for (const auto& file : files)
+				{
+					if (ImGui::MenuItem(file.c_str()))
+					{
+						// Unload current data
+						// Load new data
+						std::fstream fileStream("test/" + file + ".txt", std::ios::in);
+					}
+				}
+				ImGui::EndMenu();
+			}
 			if (ImGui::MenuItem("Exit"))
 			{
 				application->Close();
