@@ -64,7 +64,7 @@ public:
 
 		ImVec2 originalPosition = ImGui::GetCursorPos();
 		ImGui::SetCursorPosX((avail_size.x - textSize.x) / 2.0f);
-		ImGui::SetCursorPosY(avail_size.x / ((float)width / (float)height) / 2.0f + textSize.y);
+		ImGui::SetCursorPosY(avail_size.x / ((float)width / (float)height) / 2.0f + ImGui::GetTextLineHeightWithSpacing()/*textSize.y*/);
 		ImGui::Text("USERNAME HERE");
 		ImGui::SetCursorPos(originalPosition);
 
@@ -161,17 +161,101 @@ public:
 class DetailsWindow : public ApplicationFramework::Layer
 {
 public:
+	unsigned int texture;
+	int width, height, nrChannels;
+
 	virtual void OnAttach() override
 	{
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		// set the texture wrapping/filtering options (on the currently bound texture object)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// load and generate the texture
+		unsigned char* data = stbi_load("16x9.png", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, nrChannels == 4 ? GL_RGBA : GL_RGB, width, height, 0, nrChannels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
 	}
 
 	virtual void OnDetach() override
 	{
+		glDeleteTextures(1, &texture);
 	}
 
 	virtual void OnUIRender() override
 	{
 		ImGui::Begin("DetailsWindow");
+
+		if (ImGui::BeginTable("table_nested1", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable))
+		{
+			//ImGui::TableSetupColumn("A0");
+			//ImGui::TableSetupColumn("A1");
+			//ImGui::TableHeadersRow();
+
+			ImGui::TableNextColumn();
+			ImGui::Text("Image here");
+
+			ImVec2 avail_size = ImGui::GetContentRegionAvail();
+			ImGui::Image(
+				(ImTextureID)((unsigned long)texture),
+				ImVec2(avail_size.x, avail_size.x));
+
+			ImGui::TableNextColumn();
+			{
+				if (ImGui::BeginTable("table_nested2", 1, ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable))
+				{
+					//ImGui::TableSetupColumn("##");
+					//ImGui::TableSetupColumn("##");
+					//ImGui::TableHeadersRow();
+
+					//ImVec2 avail_size = ImGui::GetContentRegionAvail();
+					ImGui::TableNextRow(ImGuiTableRowFlags_None, avail_size.x - ImGui::GetTextLineHeight() * 8); // ImGui::GetTextLineHeight() * 8 is the size below...
+					ImGui::TableNextColumn();
+
+					// https://stackoverflow.com/questions/64653747/how-to-center-align-text-horizontally
+					ImVec2 textSize = ImGui::CalcTextSize(std::string("B0 Row 0").c_str());
+					ImVec2 originalPosition = ImGui::GetCursorPos();
+					ImGui::SetCursorPosY((avail_size.x / 2.0f + ImGui::GetTextLineHeightWithSpacing()/*textSize.y*/) - (ImGui::GetTextLineHeight() * 8.0f / 2.0f));
+					ImGui::Text("B0 Row 0");
+					ImGui::SetCursorPos(originalPosition);
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					{
+						// Note: we are using a fixed-sized buffer for simplicity here. See ImGuiInputTextFlags_CallbackResize
+						// and the code in misc/cpp/imgui_stdlib.h for how to setup InputText() for dynamically resizing strings.
+						static char text[1024 * 8] =
+							"/*\n"
+							" The Pentium F00F bug, shorthand for F0 0F C7 C8,\n"
+							" the hexadecimal encoding of one offending instruction,\n"
+							" more formally, the invalid operand with locked CMPXCHG8B\n"
+							" instruction bug, is a design flaw in the majority of\n"
+							" Intel Pentium, Pentium MMX, and Pentium OverDrive\n"
+							" processors (all in the P5 microarchitecture).\n"
+							"*/\n\n"
+							"label:\n"
+							"\tlock cmpxchg8b eax\n";
+
+						// Perhaps the user can toggle a flag in the settings to enable/disable read-only mode? (ImGuiInputTextFlags_ReadOnly)
+						ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8), ImGuiInputTextFlags_AllowTabInput /*| ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_CtrlEnterForNewLine*/); // https://github.com/ocornut/imgui/issues/3237#issuecomment-1966083395
+					}
+
+					ImGui::EndTable();
+				}
+			}
+			ImGui::EndTable();
+		}
+
 		ImGui::End();
 	}
 };
